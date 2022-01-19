@@ -1,0 +1,30 @@
+Import("env")
+
+#------------------------------------------------------------
+# Library
+#------------------------------------------------------------
+
+e = env.Clone()
+e.PrependUnique(CPPPATH=["include"])
+lib = e.StaticLibrary("foo", "src/foo.c")
+e.InstallLib(lib)
+e.InstallHeader("include/foo/foo.h", "foo")
+
+def UseLibFoo(env):
+    env.PrependUnique(LIBS=[lib])
+    env.PrependUnique(CPPPATH=["#foo/include"])
+    # env.PrependUnique(CPPPATH=["#foo"])
+    # env.PrependUnique(CPPPATH=["include"])
+
+env.AddMethod(UseLibFoo, "UseLibFoo")
+
+#------------------------------------------------------------
+# Tools
+#------------------------------------------------------------
+
+e = env.Clone()
+e.UseLibFoo()
+exe = e.Program("foo", "src/main.c")
+e.InstallBin(exe)
+
+# vim: set ft=python:

@@ -1,0 +1,30 @@
+Import("env")
+
+#------------------------------------------------------------
+# Library
+#------------------------------------------------------------
+
+e = env.Clone()
+e.UseLibFoo()
+e.PrependUnique(CPPPATH=["include"])
+lib = e.StaticLibrary("bar", "src/bar.c")
+e.InstallLib(lib)
+e.InstallHeader("include/bar/bar.h", "bar")
+
+def UseLibBar(env):
+    env.UseLibFoo()
+    env.PrependUnique(LIBS=[lib])
+    env.PrependUnique(CPPPATH=["#bar/include"])
+
+env.AddMethod(UseLibBar, "UseLibBar")
+
+#------------------------------------------------------------
+# Tools
+#------------------------------------------------------------
+
+e = env.Clone()
+e.UseLibBar()
+exe = e.Program("bar", "src/main.c")
+e.InstallBin(exe)
+
+# vim: set ft=python:
